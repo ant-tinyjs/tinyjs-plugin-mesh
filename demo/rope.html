@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Rope Demo</title>
+  <meta content="yes" name="apple-mobile-web-app-capable"/>
+  <meta content="yes" name="apple-touch-fullscreen"/>
+  <meta content="telephone=no,email=no" name="format-detection"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+  <style>
+    html, body, p, div {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+
+<script src="http://localhost:8001/dist/tiny.debug.js"></script>
+<!--<script src="https://a.alipayobjects.com/g/tiny/tiny/1.0.1/tiny.js"></script>-->
+<script src="../dist/index.js"></script>
+
+<script type="text/javascript">
+  // 新建 App
+  var app = new Tiny.Application({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+  var container = new Tiny.Container();
+  var count = 0;
+
+  // build a rope!
+  var ropeLength = 918 / 20;
+  var ropeLength = 45;
+
+  var points = [];
+
+  for (var i = 0; i < 25; i++) {
+    points.push(new Tiny.Point(i * ropeLength, 0));
+  }
+
+  var strip = new Tiny.mesh.Rope(Tiny.Texture.fromImage('https://gw.alipayobjects.com/zos/rmsportal/ZQlicRWdoMXqrxotrpet.png'), points);
+  strip.x = 10;
+  strip.y = 120;
+  container.addChild(strip);
+
+  var g = new Tiny.Graphics();
+  g.x = strip.x;
+  g.y = strip.y;
+  container.addChild(g);
+
+  app.run(container);
+
+  app.onUpdate(function () {
+    count += 0.1;
+
+    // make the snake
+    for (var i = 0; i < points.length; i++) {
+      // S式
+      points[i].y = Math.sin((i * 0.5) + count) * 30;
+      points[i].x = i * ropeLength + Math.cos((i * 0.3) + count) * 20;
+
+      // 伸缩式
+//      strip.points[i].offset = Math.sin((i * 0.5) + count) * 10;
+//      points[i].x = i * strip.width/(points.length-1) + Math.cos((i * 0.3) + count) * 20;
+    }
+    renderPoints();
+  });
+
+  function renderPoints() {
+    g.clear();
+
+    g.lineStyle(2, 0xffc2c2);
+    g.moveTo(points[0].x, points[0].y);
+
+    for (var i = 1; i < points.length; i++) {
+      g.lineTo(points[i].x, points[i].y);
+    }
+
+    for (var i = 1; i < points.length; i++) {
+      g.beginFill(0xff0022);
+      g.drawCircle(points[i].x, points[i].y, 10);
+      g.endFill();
+    }
+  }
+</script>
+</body>
+</html>

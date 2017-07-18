@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>NineSlicePlane Demo</title>
+  <meta content="yes" name="apple-mobile-web-app-capable"/>
+  <meta content="yes" name="apple-touch-fullscreen"/>
+  <meta content="telephone=no,email=no" name="format-detection"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+  <style>
+    html, body, p, div {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+
+<script src="http://localhost:8001/dist/tiny.debug.js"></script>
+<!--<script src="https://a.alipayobjects.com/g/tiny/tiny/1.0.1/tiny.js"></script>-->
+<script src="../dist/index.js"></script>
+
+<script type="text/javascript">
+  // 新建 App
+  var app = new Tiny.Application({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+  var container = new Tiny.Container();
+  var button = new Tiny.Graphics();
+  button.beginFill(0xffffff);
+  button.drawCircle(25, 25, 25);
+  button.endFill();
+
+  var tex = button.generateCanvasTexture();
+  var mesh = new Tiny.mesh.NineSlicePlane(tex, 25, 25, 25, 25);
+  mesh.setPosition(100);
+  container.addChild(mesh);
+
+  app.run(container);
+  app.onUpdate(function () {
+    renderPoints();
+  });
+  new Tiny.TWEEN.Tween({
+    height: 50,
+    width: 50
+  })
+    .to({
+      width: 200,
+      height: 300
+    })
+    .easing(Tiny.TWEEN.Easing.Cubic.InOut)
+    .repeat(Infinity)
+    .repeatDelay(500)
+    .yoyo(true)
+    .onUpdate(function () {
+      mesh.height = this.height;
+      mesh.width = this.width;
+    }).start();
+
+  var g = new Tiny.Graphics();
+  g.x = mesh.x;
+  g.y = mesh.y;
+  container.addChild(g);
+
+  function renderPoints() {
+    var points = [];
+    mesh.vertices.forEach(function (item, i) {
+      if (i % 2 === 0) {
+        points.push({
+          x: mesh.vertices[i],
+          y: mesh.vertices[i + 1]
+        });
+      }
+    });
+    g.clear();
+
+    g.lineStyle(2, 0xffc2c2);
+    g.moveTo(points[0], points[1]);
+
+    for (var i = 0; i < points.length; i++) {
+      g.beginFill(0xff0022);
+      g.drawCircle(points[i].x, points[i].y, 10);
+      g.endFill();
+    }
+  }
+</script>
+</body>
+</html>
