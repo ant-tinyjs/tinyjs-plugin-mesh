@@ -2,14 +2,14 @@
   "name": "tinyjs-plugin-mesh",
   "version": "0.0.1",
   "author": "fangjun.yfj",
-  "description": "The Tiny.js plugin",
+  "description": "The Tiny.js plugin of mesh",
   "keywords": [
     "tinyjs",
     "plugin"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ant-tinyjs/tinyjs-plugin-mesh.git"
+    "url": "git@gitlab.alipay-inc.com:tiny-plugins/tinyjs-plugin-mesh.git"
   },
   "main": "src/index.js",
   "files": [
