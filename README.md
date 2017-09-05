@@ -24,7 +24,7 @@
 
 引用 Tiny.js 源码
 ``` html
-<script src="https://a.alipayobjects.com/g/tiny/tiny/1.0.2/tiny.js"></script>
+<script src="https://a.alipayobjects.com/g/tiny/tiny/1.1.4/tiny.js"></script>
 ```
 ``` js
 var mesh = require('tinyjs-plugin-mesh');
