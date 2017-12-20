@@ -152,8 +152,8 @@ class MeshSpriteRenderer {
     let y2 = vertices[index2 + 1];
 
     if (mesh.canvasPadding > 0) {
-      const paddingX = mesh.canvasPadding / mesh.worldTransform.a;
-      const paddingY = mesh.canvasPadding / mesh.worldTransform.d;
+      const paddingX = mesh.canvasPadding / Math.abs(mesh.worldTransform.a);
+      const paddingY = mesh.canvasPadding / Math.abs(mesh.worldTransform.d);
       const centerX = (x0 + x1 + x2) / 3;
       const centerY = (y0 + y1 + y2) / 3;
 
