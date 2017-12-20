@@ -98,7 +98,7 @@ class Mesh extends Tiny.Container {
      * @member {number} Tiny.mesh.Mesh#canvasPadding
      * @default 0
      */
-    this.canvasPadding = 0;
+    this.canvasPadding = Mesh.defaults.canvasPadding;
 
     /**
      * The default shader that is used if a mesh doesn't have a more specific one.
@@ -315,6 +315,19 @@ class Mesh extends Tiny.Container {
 Mesh.DRAW_MODES = {
   TRIANGLE_MESH: 0,
   TRIANGLES: 1,
+};
+
+/**
+ * Mesh defaults values
+ *
+ * @static
+ * @constant
+ * @type {object}
+ * @property {number} canvasPadding
+ * @property {number} TRIANGLES
+ */
+Mesh.defaults = {
+  canvasPadding: 0,
 };
 
 export default Mesh;
