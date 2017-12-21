@@ -101,6 +101,13 @@ class Mesh extends Tiny.Container {
     this.canvasPadding = Mesh.defaults.canvasPadding;
 
     /**
+     *
+     * @type {number}
+     * @private
+     */
+    this._canvasDrawTimes = 1;
+
+    /**
      * The default shader that is used if a mesh doesn't have a more specific one.
      *
      * @member {Tiny.Shader}  Tiny.mesh.Mesh#shader
@@ -301,6 +308,28 @@ class Mesh extends Tiny.Container {
   set tint(value) {
     this.tintRgb = Tiny.hex2rgb(value, this.tintRgb);
   }
+
+  /**
+   * Canvas 渲染模式下执行绘制的次数（取值范围：[1, 10]）
+   * <br>
+   * <br>
+   * 注意：
+   * <ul>
+   * <li>此参数是为了解决三角纹理拼接时边缘羽化导致的空隙</li>
+   * <li>一定要根据实际显示对象尝试最佳数值，不可盲目设置为最大值</li>
+   * </ul>
+   *
+   * @member {number}
+   * @default 1
+   * @version 0.0.4
+   */
+  get canvasDrawTimes() {
+    return this._canvasDrawTimes || 1;
+  }
+
+  set canvasDrawTimes(times) {
+    this._canvasDrawTimes = times > 10 ? 10 : (times < 0 ? 1 : times | 0) || 1;
+  }
 }
 
 /**
@@ -324,7 +353,7 @@ Mesh.DRAW_MODES = {
  * @constant
  * @type {object}
  * @property {number} canvasPadding
- * @property {number} TRIANGLES
+ * @version 0.0.3
  */
 Mesh.defaults = {
   canvasPadding: 0,

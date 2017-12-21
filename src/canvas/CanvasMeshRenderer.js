@@ -1,4 +1,4 @@
-import {default as Mesh} from '../Mesh';
+import { default as Mesh } from '../Mesh';
 
 /**
  * Renderer dedicated to meshes.
@@ -211,17 +211,19 @@ class MeshSpriteRenderer {
       deltaF / delta
     );
 
-    context.drawImage(
-      textureSource,
-      0,
-      0,
-      textureWidth * base.resolution,
-      textureHeight * base.resolution,
-      0,
-      0,
-      textureWidth,
-      textureHeight
-    );
+    for (let i = mesh.canvasDrawTimes; i > 0; i--) {
+      context.drawImage(
+        textureSource,
+        0,
+        0,
+        textureWidth * base.resolution,
+        textureHeight * base.resolution,
+        0,
+        0,
+        textureWidth,
+        textureHeight
+      );
+    }
 
     context.restore();
   }

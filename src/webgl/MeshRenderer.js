@@ -67,6 +67,7 @@ void main(void)
    * renders mesh
    *
    * @param {Tiny.mesh.Mesh} mesh mesh instance
+   * @private
    */
   render(mesh) {
     const renderer = this.renderer;
