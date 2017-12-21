@@ -324,7 +324,6 @@ Mesh.DRAW_MODES = {
  * @constant
  * @type {object}
  * @property {number} canvasPadding
- * @property {number} TRIANGLES
  */
 Mesh.defaults = {
   canvasPadding: 0,
