@@ -4,7 +4,7 @@
 
 ## 查看demo
 
-http://tinyjs.net/#/plugins/tinyjs-plugin-mesh/demo
+http://tinyjs.net/plugins/tinyjs-plugin-mesh.html#demo
 
 ## 引用方法
 
@@ -33,8 +33,8 @@ var mesh = require('tinyjs-plugin-mesh');
 ```
 
 ## 依赖
-- `Tiny.js`: [Link](http://tinyjs.net/#/docs/api)
+- `Tiny.js`: [Link](http://tinyjs.net/api)
 
 ## API文档
 
-http://tinyjs.net/#/plugins/tinyjs-plugin-mesh/docs
+http://tinyjs.net/plugins/tinyjs-plugin-mesh.html#docs
