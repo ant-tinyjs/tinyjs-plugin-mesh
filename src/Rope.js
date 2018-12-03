@@ -3,12 +3,11 @@ import Mesh from './Mesh';
 /**
  * The rope allows you to draw a texture across several points and them manipulate these points
  *
- * ```js
+ * @example
  * for (let i = 0; i < 20; i++) {
  *     points.push(new Tiny.Point(i * 50, 0));
  * };
  * var rope = new Tiny.mesh.Rope(Tiny.Texture.fromImage('snake.png'), points);
- * ```
  *
  * @class
  * @extends Tiny.mesh.Mesh
@@ -60,6 +59,7 @@ class Rope extends Mesh {
 
     /**
      * refreshes vertices on every updateTransform
+     *
      * @member {boolean}
      * @default true
      */

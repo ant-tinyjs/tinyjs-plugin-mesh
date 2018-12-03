@@ -3,12 +3,8 @@ import Plane from './Plane';
 const DEFAULT_BORDER_SIZE = 10;
 
 /**
- * The NineSlicePlane allows you to stretch a texture using 9-slice scaling. The corners will remain unscaled (useful
- * for buttons with rounded corners for example) and the other areas will be scaled horizontally and or vertically
+ * The NineSlicePlane allows you to stretch a texture using 9-slice scaling. The corners will remain unscaled (useful for buttons with rounded corners for example) and the other areas will be scaled horizontally and or vertically
  *
- * ```js
- * var plane9 = new Tiny.NineSlicePlane(Tiny.Texture.fromImage('BoxWithRoundedCorners.png'), 15, 15, 15, 15);
- * ```
  * <pre>
  *      A                          B
  *    +---+----------------------+---+
@@ -28,6 +24,9 @@ const DEFAULT_BORDER_SIZE = 10;
  *     area 5 will be stretched both horizontally and vertically
  * </pre>
  *
+ * @example
+ * var plane9 = new Tiny.NineSlicePlane(Tiny.Texture.fromImage('BoxWithRoundedCorners.png'), 15, 15, 15, 15);
+ *
  * @class
  * @extends Tiny.mesh.Plane
  * @memberof Tiny.mesh
@@ -35,11 +34,11 @@ const DEFAULT_BORDER_SIZE = 10;
  */
 class NineSlicePlane extends Plane {
   /**
-   * @param {Tiny.Texture}  texture           - The texture to use on the NineSlicePlane.
-   * @param {int}           [leftWidth=10]    - size of the left vertical bar (A)
-   * @param {int}           [topHeight=10]    - size of the top horizontal bar (C)
-   * @param {int}           [rightWidth=10]   - size of the right vertical bar (B)
-   * @param {int}           [bottomHeight=10] - size of the bottom horizontal bar (D)
+   * @param {Tiny.Texture} texture - The texture to use on the NineSlicePlane.
+   * @param {int} [leftWidth=10] - Size of the left vertical bar (A)
+   * @param {int} [topHeight=10] - Size of the top horizontal bar (C)
+   * @param {int} [rightWidth=10] - Size of the right vertical bar (B)
+   * @param {int} [bottomHeight=10] - Size of the bottom horizontal bar (D)
    */
   constructor(texture, leftWidth, topHeight, rightWidth, bottomHeight) {
     super(texture, 4, 4);
@@ -72,7 +71,7 @@ class NineSlicePlane extends Plane {
      * @memberof Tiny.mesh.NineSlicePlane#
      * @override
      */
-    this.leftWidth = typeof leftWidth !== 'undefined' ? leftWidth : DEFAULT_BORDER_SIZE;
+    this._leftWidth = typeof leftWidth !== 'undefined' ? leftWidth : DEFAULT_BORDER_SIZE;
 
     /**
      * The width of the right column (b)
@@ -81,7 +80,7 @@ class NineSlicePlane extends Plane {
      * @memberof Tiny.mesh.NineSlicePlane#
      * @override
      */
-    this.rightWidth = typeof rightWidth !== 'undefined' ? rightWidth : DEFAULT_BORDER_SIZE;
+    this._rightWidth = typeof rightWidth !== 'undefined' ? rightWidth : DEFAULT_BORDER_SIZE;
 
     /**
      * The height of the top row (c)
@@ -90,7 +89,7 @@ class NineSlicePlane extends Plane {
      * @memberof Tiny.mesh.NineSlicePlane#
      * @override
      */
-    this.topHeight = typeof topHeight !== 'undefined' ? topHeight : DEFAULT_BORDER_SIZE;
+    this._topHeight = typeof topHeight !== 'undefined' ? topHeight : DEFAULT_BORDER_SIZE;
 
     /**
      * The height of the bottom row (d)
@@ -99,7 +98,7 @@ class NineSlicePlane extends Plane {
      * @memberof Tiny.mesh.NineSlicePlane#
      * @override
      */
-    this.bottomHeight = typeof bottomHeight !== 'undefined' ? bottomHeight : DEFAULT_BORDER_SIZE;
+    this._bottomHeight = typeof bottomHeight !== 'undefined' ? bottomHeight : DEFAULT_BORDER_SIZE;
 
     this.refresh(true);
   }
@@ -111,8 +110,11 @@ class NineSlicePlane extends Plane {
   updateHorizontalVertices() {
     const vertices = this.vertices;
 
-    vertices[9] = vertices[11] = vertices[13] = vertices[15] = this._topHeight;
-    vertices[17] = vertices[19] = vertices[21] = vertices[23] = this._height - this._bottomHeight;
+    const h = this._topHeight + this._bottomHeight;
+    const scale = this._height > h ? 1.0 : this._height / h;
+
+    vertices[9] = vertices[11] = vertices[13] = vertices[15] = this._topHeight * scale;
+    vertices[17] = vertices[19] = vertices[21] = vertices[23] = this._height - (this._bottomHeight * scale);
     vertices[25] = vertices[27] = vertices[29] = vertices[31] = this._height;
   }
 
@@ -123,8 +125,11 @@ class NineSlicePlane extends Plane {
   updateVerticalVertices() {
     const vertices = this.vertices;
 
-    vertices[2] = vertices[10] = vertices[18] = vertices[26] = this._leftWidth;
-    vertices[4] = vertices[12] = vertices[20] = vertices[28] = this._width - this._rightWidth;
+    const w = this._leftWidth + this._rightWidth;
+    const scale = this._width > w ? 1.0 : this._width / w;
+
+    vertices[2] = vertices[10] = vertices[18] = vertices[26] = this._leftWidth * scale;
+    vertices[4] = vertices[12] = vertices[20] = vertices[28] = this._width - (this._rightWidth * scale);
     vertices[6] = vertices[14] = vertices[22] = vertices[30] = this._width;
   }
 
@@ -138,6 +143,7 @@ class NineSlicePlane extends Plane {
     const context = renderer.context;
 
     context.globalAlpha = this.worldAlpha;
+    renderer.setBlendMode(this.blendMode);
 
     const transform = this.worldTransform;
     const res = renderer.resolution;
@@ -164,8 +170,8 @@ class NineSlicePlane extends Plane {
 
     const base = this._texture.baseTexture;
     const textureSource = base.source;
-    const w = base.width;
-    const h = base.height;
+    const w = base.width * base.resolution;
+    const h = base.height * base.resolution;
 
     this.drawSegment(context, textureSource, w, h, 0, 1, 10, 11);
     this.drawSegment(context, textureSource, w, h, 2, 3, 12, 13);
@@ -179,9 +185,7 @@ class NineSlicePlane extends Plane {
   }
 
   /**
-   * Renders one segment of the plane.
-   * to mimic the exact drawing behavior of stretching the image like WebGL does, we need to make sure
-   * that the source area is at least 1 pixel in size, otherwise nothing gets drawn when a slice size of 0 is used.
+   * Renders one segment of the plane. to mimic the exact drawing behavior of stretching the image like WebGL does, we need to make sure that the source area is at least 1 pixel in size, otherwise nothing gets drawn when a slice size of 0 is used.
    *
    * @private
    * @param {CanvasRenderingContext2D} context - The context to draw with.
@@ -233,7 +237,6 @@ class NineSlicePlane extends Plane {
   get width() {
     return this._width;
   }
-
   set width(value) {
     this._width = value;
     this._refresh();
@@ -247,7 +250,6 @@ class NineSlicePlane extends Plane {
   get height() {
     return this._height;
   }
-
   set height(value) {
     this._height = value;
     this._refresh();
@@ -261,7 +263,6 @@ class NineSlicePlane extends Plane {
   get leftWidth() {
     return this._leftWidth;
   }
-
   set leftWidth(value) {
     this._leftWidth = value;
     this._refresh();
@@ -275,7 +276,6 @@ class NineSlicePlane extends Plane {
   get rightWidth() {
     return this._rightWidth;
   }
-
   set rightWidth(value) {
     this._rightWidth = value;
     this._refresh();
@@ -289,7 +289,6 @@ class NineSlicePlane extends Plane {
   get topHeight() {
     return this._topHeight;
   }
-
   set topHeight(value) {
     this._topHeight = value;
     this._refresh();
@@ -303,7 +302,6 @@ class NineSlicePlane extends Plane {
   get bottomHeight() {
     return this._bottomHeight;
   }
-
   set bottomHeight(value) {
     this._bottomHeight = value;
     this._refresh();
@@ -337,7 +335,7 @@ class NineSlicePlane extends Plane {
     this.updateHorizontalVertices();
     this.updateVerticalVertices();
 
-    this.dirty = true;
+    this.dirty++;
 
     this.multiplyUvs();
   }

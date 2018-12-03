@@ -3,17 +3,18 @@ const tempPolygon = new Tiny.Polygon();
 
 /**
  * Base mesh class
+ *
  * @class
  * @extends Tiny.Container
  * @memberof Tiny.mesh
  */
 class Mesh extends Tiny.Container {
   /**
-   * @param {Tiny.Texture}  texture     - The texture to use
-   * @param {Float32Array}  [vertices]  - if you want to specify the vertices
-   * @param {Float32Array}  [uvs]       - if you want to specify the uvs
-   * @param {Uint16Array}   [indices]   - if you want to specify the indices
-   * @param {number}        [drawMode]  - the drawMode, can be any of the Mesh.DRAW_MODES consts
+   * @param {Tiny.Texture} texture - The texture to use
+   * @param {Float32Array} [vertices] - If you want to specify the vertices
+   * @param {Float32Array} [uvs] - If you want to specify the uvs
+   * @param {Uint16Array} [indices] - If you want to specify the indices
+   * @param {number} [drawMode] - The drawMode, can be any of the Mesh.DRAW_MODES consts
    */
   constructor(texture, vertices, uvs, indices, drawMode) {
     super();
@@ -21,23 +22,11 @@ class Mesh extends Tiny.Container {
     /**
      * The texture of the Mesh
      *
-     * @member {Tiny.Texture}  Tiny.mesh.Mesh#_texture
+     * @member {Tiny.Texture} Tiny.mesh.Mesh#_texture
+     * @default Tiny.Texture.EMPTY
      * @private
      */
-    this._texture = texture;
-
-    /**
-     * An array of vertices
-     *
-     * @member {Float32Array} Tiny.mesh.Mesh#vertices
-     */
-    this.vertices = vertices ||
-      new Float32Array([
-        0, 0,
-        100, 0,
-        100, 100,
-        0, 100,
-      ]);
+    this._texture = texture || Tiny.Texture.EMPTY;
 
     /**
      * The Uvs of the Mesh
@@ -53,24 +42,29 @@ class Mesh extends Tiny.Container {
       ]);
 
     /**
+     * An array of vertices
+     *
+     * @member {Float32Array} Tiny.mesh.Mesh#vertices
+     */
+    this.vertices = vertices ||
+      new Float32Array([
+        0, 0,
+        100, 0,
+        100, 100,
+        0, 100,
+      ]);
+
+    /**
      * An array containing the indices of the vertices
      *
-     * @member {Uint16Array}  Tiny.mesh.Mesh#indices
+     * @member {Uint16Array} Tiny.mesh.Mesh#indices
      */
     this.indices = indices || new Uint16Array([0, 1, 3, 2]);
 
     /**
-     * The way the Mesh should be drawn, can be any of the {@link Tiny.mesh.Mesh.DRAW_MODES} consts
-     *
-     * @member {number} Tiny.mesh.Mesh#drawMode
-     * @see Tiny.mesh.Mesh.DRAW_MODES
-     */
-    this.drawMode = drawMode || Mesh.DRAW_MODES.TRIANGLE_MESH;
-
-    /**
      * Version of mesh uvs are dirty or not
      *
-     * @member {number}  Tiny.mesh.Mesh#dirty
+     * @member {number} Tiny.mesh.Mesh#dirty
      */
     this.dirty = 0;
 
@@ -82,8 +76,22 @@ class Mesh extends Tiny.Container {
     this.indexDirty = 0;
 
     /**
-     * The blend mode to be applied to the sprite. Set to `Tiny.BLEND_MODES.NORMAL` to remove
-     * any blend mode.
+     * Version of mesh verticies array
+     *
+     * @member {number}
+     */
+    this.vertexDirty = 0;
+
+    /**
+     * For backwards compatibility the default is to re-upload verticies each render call.
+     * Set this to `false` and increase `vertexDirty` to manually re-upload the buffer.
+     *
+     * @member {boolean}
+     */
+    this.autoUpdate = true;
+
+    /**
+     * The blend mode to be applied to the sprite. Set to `Tiny.BLEND_MODES.NORMAL` to remove any blend mode.
      *
      * @member {number} Tiny.mesh.Mesh#blendMode
      * @default Tiny.BLEND_MODES.NORMAL
@@ -92,8 +100,7 @@ class Mesh extends Tiny.Container {
     this.blendMode = Tiny.BLEND_MODES.NORMAL;
 
     /**
-     * Triangles in canvas mode are automatically antialiased, use this value to force triangles
-     * to overlap a bit with each other.
+     * Triangles in canvas mode are automatically antialiased, use this value to force triangles to overlap a bit with each other.
      *
      * @member {number} Tiny.mesh.Mesh#canvasPadding
      * @default 0
@@ -101,22 +108,22 @@ class Mesh extends Tiny.Container {
     this.canvasPadding = Mesh.defaults.canvasPadding;
 
     /**
+     * The way the Mesh should be drawn, can be any of the {@link Tiny.mesh.Mesh.DRAW_MODES} consts
      *
-     * @type {number}
-     * @private
+     * @member {number} Tiny.mesh.Mesh#drawMode
+     * @see Tiny.mesh.Mesh.DRAW_MODES
      */
-    this._canvasDrawTimes = 1;
+    this.drawMode = drawMode || Mesh.DRAW_MODES.TRIANGLE_MESH;
 
     /**
      * The default shader that is used if a mesh doesn't have a more specific one.
      *
-     * @member {Tiny.Shader}  Tiny.mesh.Mesh#shader
+     * @member {Tiny.Shader} Tiny.mesh.Mesh#shader
      */
     this.shader = null;
 
     /**
-     * The tint applied to the mesh. This is a [r,g,b] value. A value of [1,1,1] will remove any
-     * tint effect.
+     * The tint applied to the mesh. This is a [r,g,b] value. A value of [1,1,1] will remove any tint effect.
      *
      * @member {number} Tiny.mesh.Mesh#tintRgb
      */
@@ -131,21 +138,17 @@ class Mesh extends Tiny.Container {
     this._glDatas = {};
 
     /**
-     * transform that is applied to UV to get the texture coords
-     * its updated independently from texture uvTransform
-     * updates of uvs are tied to that thing
+     * transform that is applied to UV to get the texture coords, its updated independently from texture uvTransform, updates of uvs are tied to that thing
      *
-     * @member {Tiny.TextureTransform}  Tiny.mesh.Mesh#_uvTransform
+     * @member {Tiny.TextureTransform} Tiny.mesh.Mesh#_uvTransform
      * @private
      */
     this._uvTransform = new Tiny.TextureTransform(texture);
 
     /**
-     * whether or not upload uvTransform to shader
-     * if its false, then uvs should be pre-multiplied
-     * if you change it for generated mesh, please call 'refresh(true)'
+     * Whether or not upload uvTransform to shader, if its false, then uvs should be pre-multiplied, if you change it for generated mesh, please call 'refresh(true)'
      *
-     * @member {boolean}  Tiny.mesh.Mesh#uploadUvTransform
+     * @member {boolean} Tiny.mesh.Mesh#uploadUvTransform
      * @default false
      */
     this.uploadUvTransform = false;
@@ -158,6 +161,13 @@ class Mesh extends Tiny.Container {
      * @default 'mesh'
      */
     this.pluginName = 'mesh';
+
+    /**
+     *
+     * @type {number}
+     * @private
+     */
+    this._canvasDrawTimes = 1;
   }
 
   /**
@@ -205,9 +215,12 @@ class Mesh extends Tiny.Container {
   /**
    * Refreshes uvs for generated meshes (rope, plane), sometimes refreshes vertices too
    *
-   * @param {boolean} [forceUpdate=false] if true, matrices will be updated any case
+   * @param {boolean} [forceUpdate=false] - If true, matrices will be updated any case
    */
   refresh(forceUpdate) {
+    if (this.autoUpdate) {
+      this.vertexDirty++;
+    }
     if (this._uvTransform.update(forceUpdate)) {
       this._refresh();
     }
@@ -215,6 +228,7 @@ class Mesh extends Tiny.Container {
 
   /**
    * re-calculates mesh coords
+   *
    * @protected
    */
   _refresh() {
@@ -307,6 +321,47 @@ class Mesh extends Tiny.Container {
 
   set tint(value) {
     this.tintRgb = Tiny.hex2rgb(value, this.tintRgb);
+  }
+
+  /**
+   * Destroys the Mesh object.
+   *
+   * @param {object|boolean} [options] - Options parameter. A boolean will act as if all options have been set to that value
+   * @param {boolean} [options.children=false] - If set to true, all the children will have their destroy method called as well. 'options' will be passed on to those calls.
+   * @param {boolean} [options.texture=false] - Only used for child Sprites if options.children is set to true Should it destroy the texture of the child sprite
+   * @param {boolean} [options.baseTexture=false] - Only used for child Sprites if options.children is set to true Should it destroy the base texture of the child sprite
+   * @version 1.0.0
+   */
+  destroy(options) {
+    // for each webgl data entry, destroy the WebGLGraphicsData
+    for (const id in this._glDatas) {
+      const data = this._glDatas[id];
+
+      if (data.destroy) {
+        data.destroy();
+      } else {
+        if (data.vertexBuffer) {
+          data.vertexBuffer.destroy();
+          data.vertexBuffer = null;
+        }
+        if (data.indexBuffer) {
+          data.indexBuffer.destroy();
+          data.indexBuffer = null;
+        }
+        if (data.uvBuffer) {
+          data.uvBuffer.destroy();
+          data.uvBuffer = null;
+        }
+        if (data.vao) {
+          data.vao.destroy();
+          data.vao = null;
+        }
+      }
+    }
+
+    this._glDatas = null;
+
+    super.destroy(options);
   }
 
   /**

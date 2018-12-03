@@ -1,4 +1,4 @@
-import {default as Mesh} from '../Mesh';
+import Mesh from '../Mesh';
 
 const glCore = Tiny.glCore;
 const matrixIdentity = Tiny.Matrix.IDENTITY;
@@ -11,11 +11,10 @@ const matrixIdentity = Tiny.Matrix.IDENTITY;
  * @extends Tiny.ObjectRenderer
  */
 class MeshRenderer extends Tiny.ObjectRenderer {
-
   /**
    * constructor for renderer
    *
-   * @param {WebGLRenderer} renderer The renderer this tiling awesomeness works for.
+   * @param {WebGLRenderer} renderer - The renderer this tiling awesomeness works for.
    */
   constructor(renderer) {
     super(renderer);
@@ -32,8 +31,7 @@ class MeshRenderer extends Tiny.ObjectRenderer {
     const gl = this.renderer.gl;
 
     this.shader = new Tiny.Shader(gl,
-      `
-attribute vec2 aVertexPosition;
+      `attribute vec2 aVertexPosition;
 attribute vec2 aTextureCoord;
 
 uniform mat3 projectionMatrix;
@@ -42,31 +40,25 @@ uniform mat3 uTransform;
 
 varying vec2 vTextureCoord;
 
-void main(void)
-{
+void main(void) {
     gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
 
     vTextureCoord = (uTransform * vec3(aTextureCoord, 1.0)).xy;
-}
-`,
-      `
-varying vec2 vTextureCoord;
-uniform float alpha;
-uniform vec3 tint;
+}`,
+      `varying vec2 vTextureCoord;
+uniform vec4 uColor;
 
 uniform sampler2D uSampler;
 
-void main(void)
-{
-    gl_FragColor = texture2D(uSampler, vTextureCoord) * vec4(tint * alpha, alpha);
-}
-      `);
+void main(void) {
+    gl_FragColor = texture2D(uSampler, vTextureCoord) * uColor;
+}`);
   }
 
   /**
    * renders mesh
    *
-   * @param {Tiny.mesh.Mesh} mesh mesh instance
+   * @param {Tiny.mesh.Mesh} mesh - mesh instance
    * @private
    */
   render(mesh) {
@@ -92,6 +84,7 @@ void main(void)
         vao: null,
         dirty: mesh.dirty,
         indexDirty: mesh.indexDirty,
+        vertexDirty: mesh.vertexDirty,
       };
 
       // build the vao object that will render..
@@ -115,13 +108,16 @@ void main(void)
       glData.indexBuffer.upload(mesh.indices);
     }
 
-    glData.vertexBuffer.upload(mesh.vertices);
+    if (mesh.vertexDirty !== glData.vertexDirty) {
+      glData.vertexDirty = mesh.vertexDirty;
+      glData.vertexBuffer.upload(mesh.vertices);
+    }
 
     renderer.bindShader(glData.shader);
 
     glData.shader.uniforms.uSampler = renderer.bindTexture(texture);
 
-    renderer.state.setBlendMode(mesh.blendMode);
+    renderer.state.setBlendMode(Tiny.correctBlendMode(mesh.blendMode, texture.baseTexture.premultipliedAlpha));
 
     if (glData.shader.uniforms.uTransform) {
       if (mesh.uploadUvTransform) {
@@ -131,8 +127,9 @@ void main(void)
       }
     }
     glData.shader.uniforms.translationMatrix = mesh.worldTransform.toArray(true);
-    glData.shader.uniforms.alpha = mesh.worldAlpha;
-    glData.shader.uniforms.tint = mesh.tintRgb;
+
+    glData.shader.uniforms.uColor = Tiny.premultiplyRgba(mesh.tintRgb,
+      mesh.worldAlpha, glData.shader.uniforms.uColor, texture.baseTexture.premultipliedAlpha);
 
     const drawMode = mesh.drawMode === Mesh.DRAW_MODES.TRIANGLE_MESH ? gl.TRIANGLE_STRIP : gl.TRIANGLES;
 

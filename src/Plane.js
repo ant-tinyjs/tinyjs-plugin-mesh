@@ -3,9 +3,8 @@ import Mesh from './Mesh';
 /**
  * The Plane allows you to draw a texture across several points and them manipulate these points
  *
- * ```js
+ * @example
  * var plane = new Tiny.mesh.Plane(Tiny.Texture.fromImage('snake.png'), 4, 4);
- * ```
  *
  * @class
  * @extends Tiny.mesh.Mesh
@@ -14,16 +13,15 @@ import Mesh from './Mesh';
  */
 class Plane extends Mesh {
   /**
-   * @param {Tiny.Texture}  texture   - The texture to use on the Plane.
-   * @param {number}        verticesX - The number of vertices in the x-axis
-   * @param {number}        verticesY - The number of vertices in the y-axis
+   * @param {Tiny.Texture} texture - The texture to use on the Plane.
+   * @param {number} [verticesX=10] - The number of vertices in the x-axis
+   * @param {number} [verticesY=10] - The number of vertices in the y-axis
    */
   constructor(texture, verticesX, verticesY) {
     super(texture);
 
     /**
-     * Tracker for if the Plane is ready to be drawn. Needed because Mesh ctor can
-     * call _onTextureUpdated which could call refresh too early.
+     * Tracker for if the Plane is ready to be drawn. Needed because Mesh ctor can call _onTextureUpdated which could call refresh too early.
      *
      * @member {boolean}
      * @private
@@ -65,6 +63,7 @@ class Plane extends Mesh {
     }
 
     //  cons
+
     const totalSub = segmentsX * segmentsY;
 
     for (let i = 0; i < totalSub; i++) {
@@ -85,7 +84,9 @@ class Plane extends Mesh {
     this.uvs = new Float32Array(uvs);
     this.colors = new Float32Array(colors);
     this.indices = new Uint16Array(indices);
-    this.indexDirty = true;
+
+    this.dirty++;
+    this.indexDirty++;
 
     this.multiplyUvs();
   }
