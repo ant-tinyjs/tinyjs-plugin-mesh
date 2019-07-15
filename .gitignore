@@ -6,3 +6,6 @@ npm-debug.log
 coverage
 dist
 docs
+index.js
+index.debug.js
+main.js

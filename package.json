@@ -1,7 +1,7 @@
 {
   "name": "tinyjs-plugin-mesh",
-  "version": "1.0.0",
-  "author": "fangjun.yfj",
+  "version": "1.1.0",
+  "author": "yiiqii",
   "description": "The Tiny.js plugin of mesh",
   "keywords": [
     "tinyjs",
@@ -11,9 +11,11 @@
     "type": "git",
     "url": "https://github.com/ant-tinyjs/tinyjs-plugin-mesh.git"
   },
-  "main": "dist/index.debug.js",
+  "main": "main.js",
   "files": [
-    "dist",
+    "index.js",
+    "index.debug.js",
+    "main.js",
     "src",
     "demo",
     "test"
@@ -23,7 +25,8 @@
     "prebuild": "rm -rf dist",
     "build:debug": "rollup -c",
     "build:prod": "rollup -c --environment BUILD:production",
-    "build": "npm run build:debug && npm run build:prod",
+    "build:cjs": "rollup -c --environment BUILD:cjs",
+    "build": "npm run build:debug && npm run build:prod && npm run build:cjs",
     "predoc": "rm -rf docs",
     "doc": "jsdoc README.md src -r -d docs -t node_modules/docdash",
     "lint": "eslint src test/unit/**/*.test.js",

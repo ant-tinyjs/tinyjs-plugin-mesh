@@ -116,9 +116,9 @@ class MeshSpriteRenderer {
     }
 
     const base = texture.baseTexture;
-    const textureSource = base.source;
     const textureWidth = base.width;
     const textureHeight = base.height;
+    let textureSource = base.source;
 
     let u0;
     let u1;
@@ -213,6 +213,10 @@ class MeshSpriteRenderer {
       deltaC / delta,
       deltaF / delta
     );
+
+    if (navigator.isAppXCanvasPlus) {
+      textureSource = textureSource.src;
+    }
 
     for (let i = mesh.canvasDrawTimes; i > 0; i--) {
       context.drawImage(
