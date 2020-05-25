@@ -143,7 +143,7 @@ class Mesh extends Tiny.Container {
      * @member {Tiny.TextureTransform} Tiny.mesh.Mesh#_uvTransform
      * @private
      */
-    this._uvTransform = new Tiny.TextureTransform(texture);
+    this._uvTransform = new Tiny.TextureTransform(this._texture);
 
     /**
      * Whether or not upload uvTransform to shader, if its false, then uvs should be pre-multiplied, if you change it for generated mesh, please call 'refresh(true)'

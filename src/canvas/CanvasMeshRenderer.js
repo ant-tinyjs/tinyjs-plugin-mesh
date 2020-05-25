@@ -215,7 +215,9 @@ class MeshSpriteRenderer {
     );
 
     if (navigator.isAppXCanvasPlus) {
-      textureSource = textureSource.src;
+      if (textureSource.tagName === 'IMAGE') {
+        textureSource = navigator.canUseBinding ? textureSource.$realImage : textureSource.src;
+      }
     }
 
     for (let i = mesh.canvasDrawTimes; i > 0; i--) {

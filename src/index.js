@@ -1,7 +1,7 @@
 /**
  * Mesh - The TinyJS plugin
  *
- * Copy to https://github.com/pixijs/pixi.js/tree/v4.8.5/src/mesh
+ * Copy to https://github.com/pixijs/pixi.js/tree/v4.8.9/src/mesh
  * Some code (c) 2013-2017 Mathew Groves, Chad Engler and other contributors.
  * See https://github.com/pixijs/pixi.js/graphs/contributors for the full list of contributors.
  *
