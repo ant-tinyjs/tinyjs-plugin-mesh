@@ -1,3 +1,10 @@
+## 1.3.1
+
+`2020-07-06`
+
+### Fixed
+- 修复小程序 IDE 等相关环境下 navigator 获取的问题，使用 `window.navigaotar` 来取 mini-adapter 适配值
+
 ## 1.3.0
 
 `2020-05-25`

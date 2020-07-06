@@ -183,9 +183,9 @@ class NineSlicePlane extends Plane {
 
     let textureSource = !isTinted ? texture.baseTexture.source : this._tintedTexture;
 
-    if (navigator.isAppXCanvasPlus) {
+    if (window.navigator.isAppXCanvasPlus) {
       if (textureSource.tagName === 'IMAGE') {
-        textureSource = navigator.canUseBinding ? textureSource.$realImage : textureSource.src;
+        textureSource = window.navigator.canUseBinding ? textureSource.$realImage : textureSource.src;
       }
     }
 
